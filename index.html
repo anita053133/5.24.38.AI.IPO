@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小黑貓貓 AI 視覺 Prompt 產生器</title>
+    <!-- Google Fonts 引入 Outfit、Inter 與 繁體中文 Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- 引入 Lucide 圖標 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 背景裝飾炫光 -->
+    <div class="glow-bg glow-bg-1"></div>
+    <div class="glow-bg glow-bg-2"></div>
+
+    <main class="app-container">
+        <section class="max-w-wrapper">
+            <!-- 頂部標題區域 -->
+            <header class="header-card">
+                <div class="cat-decoration">🐈‍⬛</div>
+                <div class="header-content">
+                    <div class="badge-pill">
+                        <i data-lucide="sparkles" class="icon-sparkle"></i>
+                        <span>小黑貓貓 AI 視覺 Prompt 產生器</span>
+                    </div>
+                    <h1 class="main-title">小黑貓貓 Prompt 產生器</h1>
+                    <p class="subtitle">
+                        為初學者與創作者設計的視覺指令生成工具。先選擇作品輸出類型，再勾選需求，系統會幫您整理成可直接複製貼上的 AI 繪圖與視覺生成指令。
+                    </p>
+                    <div class="stats-box">
+                        <span id="global-counter" class="counter-number">0</span>
+                        <span class="counter-label">目前已選項目</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 懸浮控制工具列 -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="search-input" placeholder="搜尋選項：例如 小黑貓、日系、海報、療癒、科技..." autocomplete="off">
+                </div>
+                <div class="toolbar-actions">
+                    <button id="btn-expand-all" class="btn btn-outline">
+                        <i data-lucide="chevrons-up-down"></i>全部展開
+                    </button>
+                    <button id="btn-collapse-all" class="btn btn-outline">
+                        <i data-lucide="chevrons-down-up"></i>全部收合
+                    </button>
+                    <button id="btn-clear-all" class="btn btn-outline text-danger">
+                        <i data-lucide="refresh-ccw"></i>清空
+                    </button>
+                    <button id="btn-copy-top" class="btn btn-primary">
+                        <i data-lucide="copy" class="btn-copy-icon"></i><span class="copy-text">複製</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 主區塊：左側選擇面板，右側結果輸出 -->
+            <div class="main-grid">
+                <!-- 左側：已選摘要與選項列表 -->
+                <div class="left-column">
+                    <!-- 已選項目即時摘要 -->
+                    <div class="summary-card card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">已選項目即時摘要</h2>
+                                <p class="card-subtitle">點擊項目右側的 × 可以快速移除。</p>
+                            </div>
+                            <span id="summary-badge" class="badge-count">0 個</span>
+                        </div>
+                        <div id="summary-container" class="summary-empty">
+                            目前還沒有選擇任何項目。您可以先從「作品輸出類型」開始，也可以直接在備註欄輸入需求。
+                        </div>
+                    </div>
+
+                    <!-- 各類別選項區（將由 JS 動態生成） -->
+                    <div id="sections-container" class="sections-stack"></div>
+
+                    <!-- 補充備註欄位 -->
+                    <div class="card note-card">
+                        <div class="card-body">
+                            <h2 class="card-title">11. 自由補充 / 備註欄位</h2>
+                            <p class="card-subtitle">選單沒有的元素、特殊限制、品牌設定、固定 LOGO、指定色系，都可以寫在這裡。</p>
+                            <textarea id="note-input" placeholder="例如：右下角放『學校學不到的事』小黑貓貓 LOGO、整體使用淡藍色、不要校園風、活動資訊一定要清楚..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：貼上 Prompt 輸出區 -->
+                <aside class="right-column">
+                    <div class="card sidebar-card">
+                        <div class="sidebar-header">
+                            <div class="sidebar-title-group">
+                                <i data-lucide="file-text" class="icon-filetext"></i>
+                                <div>
+                                    <h2 class="sidebar-title">可直接貼上的 Prompt</h2>
+                                    <p id="sidebar-count" class="sidebar-subtitle">已選 0 個項目</p>
+                                </div>
+                            </div>
+                            <button id="btn-copy-sidebar" class="btn btn-primary btn-sm">
+                                <i data-lucide="copy" class="btn-copy-icon"></i><span class="copy-text">複製</span>
+                            </button>
+                        </div>
+
+                        <textarea id="prompt-output" readonly placeholder="請先從左側選擇一些項目，這裡會自動產出可直接貼上使用的 Prompt。"></textarea>
+
+                        <div class="mobile-tip">
+                            <i data-lucide="smartphone" class="tip-icon"></i>
+                            <span>手機 / iPad 提醒：可以先用上方搜尋快速找到選項；輸出區在平板以下會移到下方，方便滑動檢查與複製。</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部行動裝置快速控制列 -->
+    <div class="mobile-bar">
+        <div class="mobile-bar-actions">
+            <button id="btn-copy-mobile" class="btn btn-primary">
+                <i data-lucide="copy" class="btn-copy-icon"></i><span class="copy-text">複製</span>
+            </button>
+            <button id="btn-clear-mobile" class="btn btn-outline">
+                <i data-lucide="refresh-ccw"></i>清空
+            </button>
+        </div>
+    </div>
+
+    <!-- 狀態通知提示框 (Toast) -->
+    <div id="toast-message" class="toast hidden"></div>
+
+    <!-- 引入邏輯腳本 -->
+    <script src="script.js"></script>
+</body>
+</html>
